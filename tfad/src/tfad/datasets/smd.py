@@ -6,12 +6,12 @@ https://github.com/NetManAIOps/OmniAnomaly
 import os
 
 from typing import Union
-from pathlib import Path, PosixPath
+from pathlib import Path, PurePosixPath as PosixPath
 
 import numpy as np
 
 import re
-
+import pandas as pd
 from tfad.ts import TimeSeries, TimeSeriesDataset
 
 import tqdm
@@ -29,19 +29,19 @@ def smd(path: Union[PosixPath, str], _for_testing=False, *args, **kwargs) -> Tim
     """
     print("\nLoading SMD dataset...\n")
 
-    path = PosixPath(path).expanduser()
-    assert path.is_dir()
+    path = PosixPath(path)
+    # assert path.is_dir()
 
     # Verify that all subdirectories exist
     bmk_dirs = ["train", "test", "test_label"]
-    assert np.all([(path / bmk_dir).is_dir() for bmk_dir in bmk_dirs])
+    # assert np.all([(path / bmk_dir).is_dir() for bmk_dir in bmk_dirs])
 
     # Files to be read
-    train_files = [fn for fn in os.listdir(path / "train") if fn.endswith(".txt")]
+    train_files = [fn for fn in os.listdir(path / "train") if fn.endswith(".csv")]
     train_files.sort()
-    test_files = [fn for fn in os.listdir(path / "test") if fn.endswith(".txt")]
+    test_files = [fn for fn in os.listdir(path / "test") if fn.endswith(".csv")]
     test_files.sort()
-    test_label_files = [fn for fn in os.listdir(path / "test") if fn.endswith(".txt")]
+    test_label_files = [fn for fn in os.listdir(path / "test") if fn.endswith(".csv")]
     test_label_files.sort()
 
     # Check that train and test files have the same names
@@ -58,15 +58,21 @@ def smd(path: Union[PosixPath, str], _for_testing=False, *args, **kwargs) -> Tim
 
     for fn_i in tqdm.tqdm(train_files):
 
-        ts_id = re.sub(".txt$", "", fn_i)
+        ts_id = re.sub(".csv$", "", fn_i)
 
         # Load the multivariate time series from txt files
         ts_train_np, ts_test_np, test_anomalies = [
-            np.genfromtxt(
-                fname=path / dir_j / fn_i,
-                dtype=np.float32,
-                delimiter=",",
-            )
+            # np.genfromtxt(
+            #     fname=path / dir_j / fn_i,
+            #     dtype=np.float32,
+            #     delimiter=",",
+            # )
+            # for dir_j in bmk_dirs
+            pd.read_csv(
+                path / dir_j / fn_i,
+                header=0,
+                index_col=False
+            ).to_numpy()
             for dir_j in bmk_dirs
         ]
         train_anomalies = None

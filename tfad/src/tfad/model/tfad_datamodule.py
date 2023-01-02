@@ -40,7 +40,7 @@ class TFADDataModule(pl.LightningDataModule):
         num_crops_per_series: int = 1,
         label_reduction_method: Optional[str] = [None, "any"][-1],
         stride_val_test: int = 1,
-        num_workers: int = 16,
+        num_workers: int = 1,
         *args,
         **kwargs,
     ) -> None:

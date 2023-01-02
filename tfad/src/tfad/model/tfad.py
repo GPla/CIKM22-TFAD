@@ -11,7 +11,6 @@ import torch.fft
 import torch_optimizer as optim
 
 import pytorch_lightning as pl
-from torchmetrics import Accuracy, Precision, Recall, FBeta, ConfusionMatrix
 
 import tfad
 from tfad.ts import TimeSeriesDataset
